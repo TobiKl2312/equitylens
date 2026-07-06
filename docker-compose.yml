@@ -20,6 +20,8 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://equitylens:equitylens@db:5432/equitylens
       EDGAR_USER_AGENT: ${EDGAR_USER_AGENT:-EquityLens/0.1 (contact@example.com)}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:

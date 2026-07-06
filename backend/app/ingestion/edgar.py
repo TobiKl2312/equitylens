@@ -64,6 +64,19 @@ class EdgarClient:
     def fetch_company_facts(self, cik: int) -> dict:
         return self._get_json(COMPANY_FACTS_URL.format(cik=cik))
 
+    @retry(
+        retry=retry_if_exception(_is_retryable),
+        wait=wait_exponential(multiplier=1, max=30),
+        stop=stop_after_attempt(5),
+        reraise=True,
+    )
+    def fetch_document(self, url: str) -> str:
+        """Fetch a filing's primary document (HTML) as text."""
+        time.sleep(REQUEST_DELAY_SECONDS)
+        response = self._client.get(url)
+        response.raise_for_status()
+        return response.text
+
 
 def extract_filings(
     submissions: dict,

@@ -2,12 +2,16 @@ from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas import CompanyOut, FilingOut, FundamentalOut, PriceOut
+from app.api.schemas import ChatRequest, CompanyOut, FilingOut, FundamentalOut, PriceOut
+from app.core.config import get_settings
 from app.core.db import get_session
 from app.models import Company
+from app.rag.embeddings import VoyageClient
 from app.services import companies as service
+from app.services import rag
 
 router = APIRouter()
 
@@ -61,3 +65,25 @@ async def get_fundamentals(
 async def get_filings(ticker: str, session: SessionDep):
     company = await _require_company(ticker, session)
     return await service.get_filings(session, company.id)
+
+
+@router.post("/companies/{ticker}/chat")
+async def chat(ticker: str, request: ChatRequest, session: SessionDep):
+    """RAG chat over the company's filings, streamed as Server-Sent Events."""
+    company = await _require_company(ticker, session)
+    voyage = VoyageClient(api_key=get_settings().voyage_api_key)
+
+    async def event_stream():
+        try:
+            async for event in rag.answer_question(
+                session, voyage, company, request.question, request.session_id
+            ):
+                yield event
+        finally:
+            voyage.close()
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )

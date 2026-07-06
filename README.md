@@ -9,7 +9,7 @@
 ## Status
 
 - ✅ **Week 1 — Foundation & data:** Postgres/pgvector schema, SEC EDGAR + XBRL + price ingestion, read API
-- ⬜ Week 2 — RAG core: filing parsing, section-aware chunking, embeddings, cited chat
+- ✅ **Week 2 — RAG core:** section-aware filing parsing & chunking, `voyage-finance-2` embeddings, hybrid retrieval, citation-validated streaming chat, retrieval eval
 - ⬜ Week 3 — Frontend: Next.js screener, company dashboard, chat UI with citation panel
 - ⬜ Week 4 — AI reports, deployment, polish
 
@@ -53,6 +53,15 @@ Explore the API at http://localhost:8000/docs — e.g.:
 - `GET /companies/AAPL/prices?start=2025-01-01`
 - `GET /companies/AAPL/fundamentals?metric=revenue`
 - `GET /companies/AAPL/filings`
+- `POST /companies/AAPL/chat` — cited RAG chat over filings (SSE stream)
+
+For the chat you need API keys in `.env` (`ANTHROPIC_API_KEY`, `VOYAGE_API_KEY`)
+and a one-off embedding run:
+
+```bash
+docker compose exec api uv run python -m app.cli process-filings
+docker compose exec api uv run python -m app.cli eval   # retrieval hit rate
+```
 
 ## Local development (without Docker)
 
@@ -86,5 +95,6 @@ How we deal with restatements, vendor quirks, and rate limits: [docs/data-qualit
 ## Docs
 
 - [Architecture](docs/architecture.md)
+- [RAG design](docs/rag-design.md) — chunking, citations, eval
 - [Data quality](docs/data-quality.md)
 - [Decision records](docs/decisions)

@@ -1,0 +1,62 @@
+[
+  {
+    "ticker": "AAPL",
+    "question": "What are the main risks Apple faces from supply chain concentration in China?",
+    "expected_sections": ["risk factors", "1a"]
+  },
+  {
+    "ticker": "AAPL",
+    "question": "How does Apple describe its Services segment revenue drivers?",
+    "expected_sections": ["business", "management's discussion", "item 1", "item 7"]
+  },
+  {
+    "ticker": "MSFT",
+    "question": "What does Microsoft say about competition in cloud computing?",
+    "expected_sections": ["business", "risk factors", "item 1"]
+  },
+  {
+    "ticker": "MSFT",
+    "question": "What legal proceedings is Microsoft currently involved in?",
+    "expected_sections": ["legal proceedings", "item 3", "item 1"]
+  },
+  {
+    "ticker": "NVDA",
+    "question": "How dependent is NVIDIA on a small number of customers?",
+    "expected_sections": ["risk factors", "1a", "management's discussion"]
+  },
+  {
+    "ticker": "NVDA",
+    "question": "What export restrictions affect NVIDIA's sales to China?",
+    "expected_sections": ["risk factors", "1a", "management's discussion"]
+  },
+  {
+    "ticker": "JPM",
+    "question": "How does JPMorgan describe its credit risk management?",
+    "expected_sections": ["management's discussion", "item 7", "risk"]
+  },
+  {
+    "ticker": "XOM",
+    "question": "What does Exxon say about climate-related regulation risks?",
+    "expected_sections": ["risk factors", "1a", "item 1"]
+  },
+  {
+    "ticker": "PFE",
+    "question": "Which patent expirations threaten Pfizer's revenue?",
+    "expected_sections": ["risk factors", "1a", "management's discussion"]
+  },
+  {
+    "ticker": "TSLA",
+    "question": "What risks does Tesla identify around its dependence on Elon Musk?",
+    "expected_sections": ["risk factors", "1a"]
+  },
+  {
+    "ticker": "WMT",
+    "question": "How does Walmart describe its e-commerce strategy?",
+    "expected_sections": ["business", "management's discussion", "item 1", "item 7"]
+  },
+  {
+    "ticker": "KO",
+    "question": "What does Coca-Cola say about changing consumer health preferences?",
+    "expected_sections": ["risk factors", "business", "1a", "item 1"]
+  }
+]

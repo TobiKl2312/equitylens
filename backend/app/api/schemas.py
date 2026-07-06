@@ -1,6 +1,11 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ChatRequest(BaseModel):
+    question: str = Field(min_length=3, max_length=2000)
+    session_id: int | None = None
 
 
 class CompanyOut(BaseModel):
