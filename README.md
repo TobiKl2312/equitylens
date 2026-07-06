@@ -11,7 +11,7 @@
 - ✅ **Week 1 — Foundation & data:** Postgres/pgvector schema, SEC EDGAR + XBRL + price ingestion, read API
 - ✅ **Week 2 — RAG core:** section-aware filing parsing & chunking, `voyage-finance-2` embeddings, hybrid retrieval, citation-validated streaming chat — **92% retrieval hit rate** on the [golden-question eval](docs/rag-design.md#eval) (105 filings, ~6,700 chunks)
 - ✅ **Week 3 — Frontend:** Next.js screener, company dashboard (price + fundamentals charts), streaming chat UI with clickable citation panel
-- ⬜ Week 4 — AI reports, deployment, polish
+- 🔶 **Week 4 — Reports & launch:** multi-stage AI research report (DB-sourced financials, per-section retrieval, model tiering, persisted citation map) ✅ · deployment ⬜ · polish ⬜
 
 ## Architecture
 

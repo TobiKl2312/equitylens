@@ -79,6 +79,14 @@ export function chatUrl(ticker: string): string {
   return `${API_URL}/companies/${ticker}/chat`;
 }
 
+export function reportUrl(ticker: string): string {
+  return `${API_URL}/companies/${ticker}/report`;
+}
+
+export function latestReportUrl(ticker: string): string {
+  return `${API_URL}/companies/${ticker}/report`;
+}
+
 export function formatBillions(value: number | null): string {
   if (value === null) return "–";
   return `$${(value / 1e9).toFixed(1)}B`;

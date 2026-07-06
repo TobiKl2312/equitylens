@@ -86,6 +86,26 @@ chunks. The one miss (Pfizer patent expirations) retrieves relevant chunks
 from sections the heading heuristic left unlabeled — a parsing-coverage
 issue, not a retrieval failure.
 
+## Report pipeline
+
+`POST /companies/{ticker}/report` generates a research report in stages
+rather than one mega-prompt:
+
+1. **Financial snapshot** — the fiscal-year table comes straight from the
+   XBRL data in Postgres; the LLM never recalls numbers from memory.
+   Haiku (cheap tier) formats growth highlights from the table.
+2. **Business Overview / Financial Performance / Key Risks** — each section
+   runs its own targeted retrieval query and its own Sonnet generation call
+   under the same only-from-excerpts, cite-everything system prompt as chat.
+3. **Bull & Bear Case** — no new retrieval; synthesizes from all sources
+   gathered by the earlier sections.
+
+Source numbering is global across sections, so `[7]` means the same excerpt
+everywhere in the report. The full citation map (chunk ids, filing metadata,
+excerpt text) is persisted with the report (`reports.citations` JSONB)
+alongside `model` and `prompt_version` — every stored report is auditable
+and traceable to the prompt that produced it.
+
 ## Known limitations
 
 - Heading detection misses filings with exotic formatting (falls back to

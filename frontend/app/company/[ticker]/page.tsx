@@ -49,12 +49,20 @@ export default async function CompanyPage({
               ` · Revenue FY${latestRevenue.fiscal_year}: ${formatBillions(latestRevenue.value)}`}
           </p>
         </div>
-        <Link
-          href={`/company/${company.ticker}/chat`}
-          className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
-        >
-          Ask the filings →
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/company/${company.ticker}/report`}
+            className="rounded-md border border-emerald-700 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+          >
+            Research report
+          </Link>
+          <Link
+            href={`/company/${company.ticker}/chat`}
+            className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800"
+          >
+            Ask the filings →
+          </Link>
+        </div>
       </div>
 
       <section className="rounded-lg border border-slate-200 bg-white p-4">

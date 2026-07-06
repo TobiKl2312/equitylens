@@ -38,3 +38,14 @@ async def stream_chat(system: str, user_message: str) -> AsyncIterator[str]:
     ) as stream:
         async for text in stream.text_stream:
             yield text
+
+
+async def complete_fast(system: str, user_message: str, max_tokens: int = 1024) -> str:
+    """One-shot completion on the cheap tier for extraction/formatting steps."""
+    response = await get_client().messages.create(
+        model=FAST_MODEL,
+        max_tokens=max_tokens,
+        system=system,
+        messages=[{"role": "user", "content": user_message}],
+    )
+    return next(block.text for block in response.content if block.type == "text")

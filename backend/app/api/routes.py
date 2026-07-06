@@ -19,6 +19,7 @@ from app.models import Company
 from app.rag.embeddings import VoyageClient
 from app.services import companies as service
 from app.services import rag
+from app.services import report as report_service
 
 router = APIRouter()
 
@@ -99,3 +100,40 @@ async def chat(ticker: str, request: ChatRequest, session: SessionDep):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+@router.post("/companies/{ticker}/report")
+async def generate_report(ticker: str, session: SessionDep):
+    """Generate a fresh AI research report, streamed as Server-Sent Events."""
+    company = await _require_company(ticker, session)
+    voyage = VoyageClient(api_key=get_settings().voyage_api_key)
+
+    async def event_stream():
+        try:
+            async for event in report_service.generate_report(session, voyage, company):
+                yield event
+        finally:
+            voyage.close()
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@router.get("/companies/{ticker}/report")
+async def latest_report(ticker: str, session: SessionDep):
+    """The most recently generated report for this company, if any."""
+    company = await _require_company(ticker, session)
+    report = await report_service.get_latest_report(session, company.id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="No report generated yet")
+    return {
+        "id": report.id,
+        "generated_at": report.generated_at.isoformat(),
+        "model": report.model,
+        "prompt_version": report.prompt_version,
+        "content_md": report.content_md,
+        "citations": report.citations,
+    }
