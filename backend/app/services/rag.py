@@ -29,32 +29,43 @@ logger = logging.getLogger(__name__)
 FILINGS_PER_COMPANY = {"10-K": 1, "10-Q": 2}
 
 
-async def _filings_to_process(session: AsyncSession, company_id: int) -> list[Filing]:
-    selected: list[Filing] = []
+async def _filings_to_process(session: AsyncSession, company_id: int) -> list:
+    """Return plain rows, not ORM instances.
+
+    Commits/rollbacks during processing expire ORM objects, and touching
+    an expired instance triggers sync IO inside async code (sqlalchemy
+    MissingGreenlet). Plain rows carry no session state to expire.
+    """
+    selected: list = []
     for form_type, count in FILINGS_PER_COMPANY.items():
         result = await session.execute(
-            select(Filing)
+            select(
+                Filing.id,
+                Filing.source_url,
+                Filing.form_type,
+                Filing.filing_date,
+                Filing.accession_no,
+            )
             .where(Filing.company_id == company_id)
             .where(Filing.form_type == form_type)
             .where(Filing.ingest_status != "embedded")
             .order_by(Filing.filing_date.desc())
             .limit(count)
         )
-        selected.extend(result.scalars())
+        selected.extend(result.all())
     return selected
 
 
 async def process_filing(
-    session: AsyncSession, edgar: EdgarClient, voyage: VoyageClient, filing: Filing
+    session: AsyncSession,
+    edgar: EdgarClient,
+    voyage: VoyageClient,
+    filing_id: int,
+    source_url: str,
+    form_type: str,
+    accession_no: str,
 ) -> int:
     """Run one filing through parse -> chunk -> embed. Returns chunk count."""
-    # Snapshot attributes up front: after a rollback the ORM instance is
-    # expired, and touching it would trigger sync IO inside async code
-    # (sqlalchemy MissingGreenlet).
-    filing_id = filing.id
-    source_url = filing.source_url
-    form_type = filing.form_type
-    accession_no = filing.accession_no
     try:
         html = edgar.fetch_document(source_url)
         text = html_to_text(html)
@@ -107,10 +118,10 @@ async def process_all_filings(
     result = await session.execute(select(Company.id, Company.ticker).order_by(Company.ticker))
     for company_id, ticker in result.all():
         filings = await _filings_to_process(session, company_id)
-        for filing in filings:
-            # Snapshot before processing — see note in process_filing
-            form_type, filing_date = filing.form_type, filing.filing_date
-            count = await process_filing(session, edgar, voyage, filing)
+        for filing_id, source_url, form_type, filing_date, accession_no in filings:
+            count = await process_filing(
+                session, edgar, voyage, filing_id, source_url, form_type, accession_no
+            )
             total_chunks += count
             logger.info("%s %s (%s): %d chunks", ticker, form_type, filing_date, count)
     return total_chunks

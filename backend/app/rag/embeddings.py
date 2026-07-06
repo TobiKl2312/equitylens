@@ -37,10 +37,16 @@ class VoyageClient:
 
     def _embed(self, texts: list[str], input_type: str) -> list[list[float]]:
         for attempt in range(MAX_ATTEMPTS):
-            response = self._client.post(
-                VOYAGE_URL,
-                json={"input": texts, "model": MODEL, "input_type": input_type},
-            )
+            try:
+                response = self._client.post(
+                    VOYAGE_URL,
+                    json={"input": texts, "model": MODEL, "input_type": input_type},
+                )
+            except httpx.TransportError as exc:  # timeouts, resets, DNS blips
+                wait = min(2**attempt, 60)
+                logger.info("Voyage transport error (%s); retrying in %ds", exc, wait)
+                time.sleep(wait)
+                continue
             if response.status_code == 429:
                 wait = float(response.headers.get("retry-after", 2**attempt))
                 wait = min(max(wait, 1.0), 120.0)

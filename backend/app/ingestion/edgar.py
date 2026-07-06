@@ -31,7 +31,8 @@ class EdgarClient:
     def __init__(self, user_agent: str):
         self._client = httpx.Client(
             headers={"User-Agent": user_agent},
-            timeout=30.0,
+            # Generous read timeout: large 10-Ks can be tens of MB
+            timeout=httpx.Timeout(120.0, connect=10.0),
             follow_redirects=True,
         )
 
