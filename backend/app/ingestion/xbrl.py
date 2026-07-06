@@ -8,11 +8,15 @@ restatements). Two traps in particular:
 - 10-Qs report both 3-month and year-to-date durations under the same label
 
 Strategy:
-- map each metric to an ordered list of candidate concepts, first hit wins
+- map each metric to a priority-ordered list of candidate concepts and merge
+  facts across ALL of them — companies switch concepts over time (NVDA
+  reported revenue under RevenueFromContractWithCustomer… for FY2019-22
+  only, then back to Revenues), so "first concept with data" drops years
 - reject facts whose duration doesn't match their period label (~1 year for
   FY, ~1 quarter for Qn)
 - per (metric, fiscal_year, fiscal_period) keep the fact with the latest
-  period_end (drops comparatives), tie-broken by filing date (restatements win)
+  period_end (drops comparatives), tie-broken by filing date (restatements
+  win); on full ties the higher-priority concept wins
 See docs/data-quality.md for the full discussion.
 """
 
@@ -70,9 +74,7 @@ def extract_fundamentals(companyfacts: dict) -> list[dict[str, Any]]:
     for metric, concepts in METRIC_CONCEPTS.items():
         facts: list[dict[str, Any]] = []
         for concept in concepts:
-            facts = _facts_for_concept(companyfacts, concept)
-            if facts:
-                break
+            facts.extend(_facts_for_concept(companyfacts, concept))
         for fact in facts:
             form = fact.get("form")
             fy = fact.get("fy")

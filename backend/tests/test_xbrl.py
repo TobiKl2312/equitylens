@@ -47,6 +47,14 @@ def test_ytd_duration_rejected_for_quarter_label(companyfacts):
     assert q2_revenue["value"] == 90753000000
 
 
+def test_merges_across_concept_switch(companyfacts):
+    """Companies switch us-gaap concepts over time (e.g. NVDA revenue);
+    facts from lower-priority concepts must still be picked up."""
+    records = _by_key(extract_fundamentals(companyfacts))
+    # FY2025 exists only under the fallback concept "Revenues"
+    assert records[("revenue", 2025, "FY")]["value"] == 416161000000
+
+
 def test_units_and_period_end(companyfacts):
     records = _by_key(extract_fundamentals(companyfacts))
     assert records[("eps_diluted", 2023, "FY")]["unit"] == "USD/shares"

@@ -8,8 +8,12 @@ known issues and how EquityLens handles them.
 **Concept drift.** Companies report the same economic quantity under
 different us-gaap concepts (e.g. revenue as
 `RevenueFromContractWithCustomerExcludingAssessedTax`, `Revenues`, or
-`SalesRevenueNet`). We map each metric to an ordered candidate list and take
-the first concept that has data (`app/ingestion/xbrl.py`).
+`SalesRevenueNet`) — and they **switch concepts over time**: NVIDIA reported
+revenue under `RevenueFromContractWithCustomer…` for FY2019–22 only, then
+back to `Revenues` (found live: a "first concept with data wins" approach
+silently truncated NVIDIA's series at FY2022). We therefore merge facts
+across all candidate concepts, with a priority order as tie-break when the
+same period appears under several concepts (`app/ingestion/xbrl.py`).
 
 **`fy`/`fp` labels describe the filing, not the fact.** Prior-year
 comparatives inside a FY2025 10-K are labeled `fy=2025`, so trusting labels
