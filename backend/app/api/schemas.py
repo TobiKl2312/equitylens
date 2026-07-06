@@ -8,6 +8,17 @@ class ChatRequest(BaseModel):
     session_id: int | None = None
 
 
+class ScreenerRow(BaseModel):
+    ticker: str
+    name: str
+    last_close: float | None
+    last_close_date: str | None
+    revenue: float | None
+    net_income: float | None
+    net_margin: float | None
+    fiscal_year: int | None
+
+
 class CompanyOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

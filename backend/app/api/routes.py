@@ -5,7 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.schemas import ChatRequest, CompanyOut, FilingOut, FundamentalOut, PriceOut
+from app.api.schemas import (
+    ChatRequest,
+    CompanyOut,
+    FilingOut,
+    FundamentalOut,
+    PriceOut,
+    ScreenerRow,
+)
 from app.core.config import get_settings
 from app.core.db import get_session
 from app.models import Company
@@ -26,6 +33,11 @@ async def health() -> dict:
 @router.get("/companies", response_model=list[CompanyOut])
 async def list_companies(session: SessionDep):
     return await service.list_companies(session)
+
+
+@router.get("/screener", response_model=list[ScreenerRow])
+async def screener(session: SessionDep):
+    return await service.get_screener(session)
 
 
 async def _require_company(ticker: str, session: AsyncSession) -> Company:

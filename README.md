@@ -10,7 +10,7 @@
 
 - ✅ **Week 1 — Foundation & data:** Postgres/pgvector schema, SEC EDGAR + XBRL + price ingestion, read API
 - ✅ **Week 2 — RAG core:** section-aware filing parsing & chunking, `voyage-finance-2` embeddings, hybrid retrieval, citation-validated streaming chat — **92% retrieval hit rate** on the [golden-question eval](docs/rag-design.md#eval) (105 filings, ~6,700 chunks)
-- ⬜ Week 3 — Frontend: Next.js screener, company dashboard, chat UI with citation panel
+- ✅ **Week 3 — Frontend:** Next.js screener, company dashboard (price + fundamentals charts), streaming chat UI with clickable citation panel
 - ⬜ Week 4 — AI reports, deployment, polish
 
 ## Architecture
@@ -61,6 +61,12 @@ and a one-off embedding run:
 ```bash
 docker compose exec api uv run python -m app.cli process-filings
 docker compose exec api uv run python -m app.cli eval   # retrieval hit rate
+```
+
+### Frontend
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:3000
 ```
 
 ## Local development (without Docker)
