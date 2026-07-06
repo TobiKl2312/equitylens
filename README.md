@@ -1,6 +1,6 @@
 # EquityLens
 
-[![CI](https://github.com/TobiKl2312/equitylens-Public/actions/workflows/ci.yml/badge.svg)](https://github.com/TobiKl2312/equitylens-Public/actions/workflows/ci.yml)
+[![CI](https://github.com/TobiKl2312/equitylens/actions/workflows/ci.yml/badge.svg)](https://github.com/TobiKl2312/equitylens/actions/workflows/ci.yml)
 
 **AI investment research platform** — aggregates SEC filings, XBRL fundamentals, and market data for ~35 US large caps, and (from week 2) answers questions about them with a citation-grounded RAG pipeline.
 
