@@ -7,6 +7,7 @@ Usage (from backend/):
     uv run python -m app.cli prices
     uv run python -m app.cli all              # all four above
     uv run python -m app.cli process-filings  # parse -> chunk -> embed
+    uv run python -m app.cli refresh          # smart update: only if new filings
     uv run python -m app.cli eval             # retrieval hit rate on golden set
 """
 
@@ -40,6 +41,8 @@ async def run(command: str) -> None:
                 await ingestion.ingest_prices(session)
             if command == "process-filings":
                 await _process_filings(session, edgar)
+            if command == "refresh":
+                await _refresh(session, edgar)
             if command == "eval":
                 await _run_eval(session)
     finally:
@@ -56,6 +59,33 @@ async def _process_filings(session, edgar) -> None:
         logging.info("Processed filings into %d chunks", total)
     finally:
         voyage.close()
+
+
+async def _refresh(session, edgar) -> None:
+    """Check EDGAR for new filings; only if found, pull fundamentals and embed.
+
+    Cheap when nothing changed (one metadata pass), so it is safe to run
+    on a schedule — the desktop launcher calls this weekly.
+    """
+    from sqlalchemy import func, select
+
+    from app.models import Filing
+
+    before = (await session.execute(select(func.count(Filing.id)))).scalar_one()
+    await ingestion.ingest_filings(session, edgar)
+    after = (await session.execute(select(func.count(Filing.id)))).scalar_one()
+    new_filings = after - before
+
+    if new_filings == 0:
+        logging.info("REFRESH: no new filings — data is current")
+        return
+
+    logging.info(
+        "REFRESH: %d new filing(s) — updating fundamentals and embeddings", new_filings
+    )
+    await ingestion.ingest_fundamentals(session, edgar)
+    await _process_filings(session, edgar)
+    logging.info("REFRESH: done")
 
 
 async def _run_eval(session) -> None:
@@ -90,7 +120,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="EquityLens data ingestion & RAG")
     parser.add_argument(
         "command",
-        choices=["seed", "filings", "fundamentals", "prices", "all", "process-filings", "eval"],
+        choices=[
+            "seed",
+            "filings",
+            "fundamentals",
+            "prices",
+            "all",
+            "process-filings",
+            "refresh",
+            "eval",
+        ],
     )
     args = parser.parse_args()
     asyncio.run(run(args.command))

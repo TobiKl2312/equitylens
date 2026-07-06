@@ -11,6 +11,9 @@ dist/
 .env
 .env.local
 
+# Desktop launcher state
+.last-filing-check
+
 # Node (frontend, week 3)
 node_modules/
 .next/
