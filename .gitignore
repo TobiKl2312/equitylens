@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+
+# Environment
+.env
+.env.local
+
+# Node (frontend, week 3)
+node_modules/
+.next/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
