@@ -81,7 +81,10 @@ expected section. This measures **retrieval**, not generation — it needs no
 LLM call, runs in seconds, and catches regressions from chunking or
 embedding changes.
 
-Current result: see README.
+Current result: **11/12 (92%)** on the corpus of 105 filings / ~6,700
+chunks. The one miss (Pfizer patent expirations) retrieves relevant chunks
+from sections the heading heuristic left unlabeled — a parsing-coverage
+issue, not a retrieval failure.
 
 ## Known limitations
 
